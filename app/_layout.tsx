@@ -1,4 +1,3 @@
-import { Stack } from "expo-router";
 import {
     Inter_300Light,
     Inter_400Regular,
@@ -8,6 +7,8 @@ import {
     Inter_900Black,
     useFonts,
 } from "@expo-google-fonts/inter";
+import { Stack } from "expo-router";
+import "../unistyles";
 
 export default function RootLayout() {
     const [fontsLoaded] = useFonts({
