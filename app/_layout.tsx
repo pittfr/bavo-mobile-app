@@ -10,6 +10,7 @@ import {
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
 import { useAuthStore } from "../store/authStore";
+import "../unistyles";
 
 export default function RootLayout() {
     const [fontsLoaded] = useFonts({
