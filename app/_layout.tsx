@@ -43,5 +43,5 @@ export default function RootLayout() {
 
     if (isLoading || !fontsLoaded) return null;
 
-    return <Stack screenOptions={{ headerShown: false }} />;
+    return <Stack screenOptions={{ headerShown: false, animation: "fade_from_bottom" }} />;
 }
