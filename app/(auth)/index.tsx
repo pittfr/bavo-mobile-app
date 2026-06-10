@@ -87,7 +87,7 @@ const styles = StyleSheet.create((theme) => ({
         alignItems: "center",
     },
     title: {
-        color: theme.colors.neutral10,
+        color: "#fff",
         fontWeight: theme.typography.weights.extrabold,
         fontSize: theme.typography.sizes.display,
         textAlign: "center",
@@ -99,7 +99,7 @@ const styles = StyleSheet.create((theme) => ({
     },
 
     signInButton: {
-        backgroundColor: theme.colors.neutral10,
+        backgroundColor: "#fff",
         marginBottom: 16,
     },
     signInButtonText: {
@@ -109,7 +109,7 @@ const styles = StyleSheet.create((theme) => ({
 
     createAccountButton: {},
     createAccountButtonText: {
-        color: theme.colors.neutral10,
+        color: "#fff",
         fontWeight: theme.typography.weights.bold,
     },
 }));
