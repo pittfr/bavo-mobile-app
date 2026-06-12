@@ -10,196 +10,119 @@ interface SuccessResponse {
     error_message?: string;
 }
 
-export const authService = {
-    login: async (email: string, password: string): Promise<TokenResponse> => {
-        try {
-            const response = await fetch(`${OUTSYSTEMS_BASE_AUTH_URL}/login`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    email: email,
-                    password: password,
-                }),
-            });
+const makeRequest = async (endpoint: string, payload: object) => {
+    const response = await fetch(`${OUTSYSTEMS_BASE_AUTH_URL}${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+    });
+    return { response, data: await response.json() };
+};
 
-            const data = await response.json();
+const fetchToken = async (
+    endpoint: string,
+    payload: object,
+    defaultError: string,
+): Promise<TokenResponse> => {
+    try {
+        const { response, data } = await makeRequest(endpoint, payload);
 
-            if (!response.ok) {
-                return { error_message: data.error_message || "Invalid username or password." };
-            }
-
-            return { token: data.token };
-        } catch (error) {
-            console.error("Network Error during login:", error);
-            return {
-                error_message: "Check your internet connection.",
-            };
+        if (!response.ok) {
+            return { error_message: data.error_message || defaultError };
         }
-    },
+        return { token: data.token };
+    } catch (error) {
+        console.error(`Network Error [${endpoint}]:`, error);
+        return { error_message: "Check your internet connection." };
+    }
+};
+
+const fetchSuccess = async (
+    endpoint: string,
+    payload: object,
+    defaultError: string,
+): Promise<SuccessResponse> => {
+    try {
+        const { response, data } = await makeRequest(endpoint, payload);
+
+        if (!response.ok || data.success === false) {
+            return { success: false, error_message: data.error_message || defaultError };
+        }
+        return { success: true };
+    } catch (error) {
+        console.error(`Network Error [${endpoint}]:`, error);
+        return { success: false, error_message: "Check your internet connection." };
+    }
+};
+
+export const authService = {
+    login: async (email: string, password: string): Promise<TokenResponse> =>
+        fetchToken(
+            "/login",
+            {
+                email: email,
+                password: password,
+            },
+            "Invalid username or password.",
+        ),
 
     register: async (
         first_name: string,
         last_name: string,
         email: string,
         password: string,
-    ): Promise<SuccessResponse> => {
-        try {
-            const response = await fetch(`${OUTSYSTEMS_BASE_AUTH_URL}/register`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    first_name: first_name,
-                    last_name: last_name,
-                    email: email,
-                    password: password,
-                }),
-            });
+    ): Promise<SuccessResponse> =>
+        fetchSuccess(
+            "/register",
+            {
+                first_name: first_name,
+                last_name: last_name,
+                email: email,
+                password: password,
+            },
+            "Could not create account.",
+        ),
 
-            const data = await response.json();
+    resendVerificationCode: async (email: string): Promise<SuccessResponse> =>
+        fetchSuccess(
+            "/resend-verification-code",
+            {
+                email: email,
+            },
+            "Could not resend code.",
+        ),
 
-            if (!response.ok || data.success === false) {
-                return {
-                    success: false,
-                    error_message: data.error_message || "Could not create account.",
-                };
-            }
+    verifyUser: async (email: string, code: string): Promise<TokenResponse> =>
+        fetchToken(
+            "/verify-user",
+            {
+                email: email,
+                code: code,
+            },
+            "Invalid or expired code.",
+        ),
 
-            return { success: true };
-        } catch (error) {
-            console.error("Network Error during registration:", error);
-            return {
-                success: false,
-                error_message: "Check your internet connection.",
-            };
-        }
-    },
-
-    resendVerificationCode: async (email: string): Promise<SuccessResponse> => {
-        try {
-            const response = await fetch(`${OUTSYSTEMS_BASE_AUTH_URL}/resend-verification-code`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    email: email,
-                }),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok || data.success === false) {
-                return {
-                    success: false,
-                    error_message: data.error_message || "Could not resend code.",
-                };
-            }
-
-            return { success: true };
-        } catch (error) {
-            console.error("Network Error while trying to resend code:", error);
-
-            return {
-                success: false,
-                error_message: "Check your internet connection.",
-            };
-        }
-    },
-
-    verifyUser: async (email: string, code: string): Promise<TokenResponse> => {
-        try {
-            const response = await fetch(`${OUTSYSTEMS_BASE_AUTH_URL}/verify-user`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    email: email,
-                    code: code,
-                }),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                return { error_message: data.error_message || "Invalid or expired code." };
-            }
-
-            return { token: data.token };
-        } catch (error) {
-            console.error("Network Error while verifying user:", error);
-            return {
-                error_message: "Check your internet connection.",
-            };
-        }
-    },
-
-    forgotPassword: async (email: string): Promise<SuccessResponse> => {
-        try {
-            const response = await fetch(`${OUTSYSTEMS_BASE_AUTH_URL}/forgot-password`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    email: email,
-                }),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok || data.success === false) {
-                return {
-                    success: false,
-                    error_message: data.error_message || "Could not send code.",
-                };
-            }
-
-            return { success: true };
-        } catch (error) {
-            console.error("Network Error while trying to send code:", error);
-
-            return {
-                success: false,
-                error_message: "Check your internet connection.",
-            };
-        }
-    },
+    forgotPassword: async (email: string): Promise<SuccessResponse> =>
+        fetchSuccess(
+            "/forgot-password",
+            {
+                email: email,
+            },
+            "Could not send code.",
+        ),
 
     resetPassword: async (
         email: string,
         code: string,
         new_password: string,
-    ): Promise<TokenResponse> => {
-        try {
-            const response = await fetch(`${OUTSYSTEMS_BASE_AUTH_URL}/reset-password`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    email: email,
-                    code: code,
-                    new_password: new_password,
-                }),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                return { error_message: data.error_message || "Could not reset password." };
-            }
-
-            return { token: data.token };
-        } catch (error) {
-            console.error("Network Error while resetting password:", error);
-            return {
-                error_message: "Check your internet connection.",
-            };
-        }
-    },
+    ): Promise<TokenResponse> =>
+        fetchToken(
+            "/reset-password",
+            {
+                email: email,
+                code: code,
+                new_password: new_password,
+            },
+            "Could not reset password.",
+        ),
 };
