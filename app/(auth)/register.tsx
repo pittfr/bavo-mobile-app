@@ -2,7 +2,7 @@ import { Input } from "@/components/input";
 import { useRouter } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import React, { useState } from "react";
-import { Alert, Pressable, ScrollView, View } from "react-native";
+import { Alert, KeyboardAvoidingView, Pressable, ScrollView, View } from "react-native";
 import Animated, {
     interpolateColor,
     useAnimatedStyle,
@@ -56,8 +56,11 @@ export default function Register() {
         const lastName = nameParts.length > 1 ? nameParts[nameParts.length - 1] : "";
 
         try {
-            await register(firstName, lastName, email, password);
-            router.replace("/");
+            const result = await register(firstName, lastName, email, password);
+
+            if (!result?.success) {
+                Alert.alert("Failed to create account", "Please check your credentials");
+            }
         } catch {
             Alert.alert("Failed to create account", "Please check your credentials");
         } finally {
@@ -67,88 +70,92 @@ export default function Register() {
 
     return (
         <View style={styles.container}>
-            <ScrollView
-                automaticallyAdjustKeyboardInsets={true}
-                contentContainerStyle={[
-                    styles.scrollContainer,
-                    { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16 },
-                ]}
-                keyboardShouldPersistTaps="handled"
-            >
-                {/* Go Back Button */}
-                <View style={styles.header}>
-                    <AnimatedPressable
-                        onPressIn={() => {
-                            pressProgress.value = withTiming(1, { duration: 150 });
-                        }}
-                        onPressOut={() => {
-                            pressProgress.value = withTiming(0, { duration: 150 });
-                        }}
-                        onPress={() => router.replace("/(auth)")}
-                        style={[styles.backButton, animatedBackground]}
-                    >
-                        <ArrowLeft size={20} color={styles.iconColor.color} />
-                    </AnimatedPressable>
-                </View>
-
-                <View style={styles.titleContainer}>
-                    <InterText style={styles.title}>Create account</InterText>
-                    <InterText style={styles.subtitle}>Set up your smart lock in seconds</InterText>
-                </View>
-
-                <View style={styles.form}>
-                    {/* Name Field */}
-                    <Input
-                        label="Full Name"
-                        value={fullName}
-                        onChangeText={setFullName}
-                        placeholder="João Silva"
-                        keyboardType="default"
-                    />
-
-                    {/* Email Field */}
-                    <Input
-                        label="Email"
-                        value={email}
-                        onChangeText={setEmail}
-                        placeholder="your@email.com"
-                        keyboardType="email-address"
-                    />
-
-                    {/* Password Field */}
-                    <Input
-                        label="Password"
-                        value={password}
-                        onChangeText={setPassword}
-                        placeholder="••••••••"
-                        isPassword
-                    />
-
-                    {/* Action Block */}
-                    <View style={styles.actionBlock}>
-                        <Button
-                            size="lg"
-                            disabled={loading || !email || !password}
-                            onPress={handleSubmit}
+            <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }} keyboardVerticalOffset={0}>
+                <ScrollView
+                    automaticallyAdjustKeyboardInsets={true}
+                    contentContainerStyle={[
+                        styles.scrollContainer,
+                        { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16 },
+                    ]}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    {/* Go Back Button */}
+                    <View style={styles.header}>
+                        <AnimatedPressable
+                            onPressIn={() => {
+                                pressProgress.value = withTiming(1, { duration: 150 });
+                            }}
+                            onPressOut={() => {
+                                pressProgress.value = withTiming(0, { duration: 150 });
+                            }}
+                            onPress={() => router.replace("/(auth)")}
+                            style={[styles.backButton, animatedBackground]}
                         >
-                            {loading ? "Creating Account..." : "Create Account"}
-                        </Button>
+                            <ArrowLeft size={20} color={styles.iconColor.color} />
+                        </AnimatedPressable>
                     </View>
-                </View>
 
-                {/* Bottom Redirection Block */}
-                <View style={styles.footer}>
-                    <InterText style={styles.footerText}>
-                        Already have an account?{" "}
-                        <InterText
-                            style={styles.signInLink}
-                            onPress={() => router.replace("/(auth)/login")}
-                        >
-                            Sign In
+                    <View style={styles.titleContainer}>
+                        <InterText style={styles.title}>Create account</InterText>
+                        <InterText style={styles.subtitle}>
+                            Set up your smart lock in seconds
                         </InterText>
-                    </InterText>
-                </View>
-            </ScrollView>
+                    </View>
+
+                    <View style={styles.form}>
+                        {/* Name Field */}
+                        <Input
+                            label="Full Name"
+                            value={fullName}
+                            onChangeText={setFullName}
+                            placeholder="João Silva"
+                            keyboardType="default"
+                        />
+
+                        {/* Email Field */}
+                        <Input
+                            label="Email"
+                            value={email}
+                            onChangeText={setEmail}
+                            placeholder="your@email.com"
+                            keyboardType="email-address"
+                        />
+
+                        {/* Password Field */}
+                        <Input
+                            label="Password"
+                            value={password}
+                            onChangeText={setPassword}
+                            placeholder="••••••••"
+                            isPassword
+                        />
+
+                        {/* Action Block */}
+                        <View style={styles.actionBlock}>
+                            <Button
+                                size="lg"
+                                disabled={loading || !email || !password}
+                                onPress={handleSubmit}
+                            >
+                                {loading ? "Creating Account..." : "Create Account"}
+                            </Button>
+                        </View>
+                    </View>
+
+                    {/* Bottom Redirection Block */}
+                    <View style={styles.footer}>
+                        <InterText style={styles.footerText}>
+                            Already have an account?{" "}
+                            <InterText
+                                style={styles.signInLink}
+                                onPress={() => router.replace("/(auth)/login")}
+                            >
+                                Sign In
+                            </InterText>
+                        </InterText>
+                    </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
         </View>
     );
 }

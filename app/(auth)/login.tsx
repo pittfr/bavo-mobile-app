@@ -2,7 +2,14 @@ import { Input } from "@/components/input";
 import { useRouter } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import React, { useState } from "react";
-import { Alert, Pressable, ScrollView, TouchableOpacity, View } from "react-native";
+import {
+    Alert,
+    KeyboardAvoidingView,
+    Pressable,
+    ScrollView,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import Animated, {
     interpolateColor,
     useAnimatedStyle,
@@ -48,8 +55,11 @@ export default function Login() {
         if (!email || !password) return;
         setLoading(true);
         try {
-            await login(email, password);
-            router.replace("/");
+            const result = await login(email, password);
+
+            if (!result?.success) {
+                Alert.alert("Login failed", "Please check your credentials");
+            }
         } catch {
             Alert.alert("Login failed", "Please check your credentials");
         } finally {
@@ -59,87 +69,93 @@ export default function Login() {
 
     return (
         <View style={styles.container}>
-            <ScrollView
-                automaticallyAdjustKeyboardInsets={true}
-                contentContainerStyle={[
-                    styles.scrollContainer,
-                    { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16 },
-                ]}
-                keyboardShouldPersistTaps="handled"
-            >
-                {/* Go Back Button */}
-                <View style={styles.header}>
-                    <AnimatedPressable
-                        onPressIn={() => {
-                            pressProgress.value = withTiming(1, { duration: 150 });
-                        }}
-                        onPressOut={() => {
-                            pressProgress.value = withTiming(0, { duration: 150 });
-                        }}
-                        onPress={() => router.replace("/(auth)")}
-                        style={[styles.backButton, animatedBackground]}
-                    >
-                        <ArrowLeft size={20} color={styles.iconColor.color} />
-                    </AnimatedPressable>
-                </View>
-
-                <View style={styles.titleContainer}>
-                    <InterText style={styles.title}>Welcome back</InterText>
-                    <InterText style={styles.subtitle}>Sign in to manage your smart lock</InterText>
-                </View>
-
-                <View style={styles.form}>
-                    {/* Email Field */}
-                    <Input
-                        label="Email"
-                        value={email}
-                        onChangeText={setEmail}
-                        placeholder="your@email.com"
-                        keyboardType="email-address"
-                    />
-
-                    {/* Password Field */}
-                    <Input
-                        label="Password"
-                        value={password}
-                        onChangeText={setPassword}
-                        placeholder="••••••••"
-                        isPassword
-                    />
-
-                    {/* Forgot Password Button */}
-                    <TouchableOpacity
-                        onPress={() => router.push("/(auth)/forgot-password")}
-                        style={styles.forgotPasswordButton}
-                    >
-                        <InterText style={styles.forgotPasswordText}>Forgot password?</InterText>
-                    </TouchableOpacity>
-
-                    {/* Action Block */}
-                    <View style={styles.actionBlock}>
-                        <Button
-                            size="lg"
-                            disabled={loading || !email || !password}
-                            onPress={handleSubmit}
+            <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }} keyboardVerticalOffset={0}>
+                <ScrollView
+                    automaticallyAdjustKeyboardInsets={true}
+                    contentContainerStyle={[
+                        styles.scrollContainer,
+                        { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 16 },
+                    ]}
+                    keyboardShouldPersistTaps="handled"
+                >
+                    {/* Go Back Button */}
+                    <View style={styles.header}>
+                        <AnimatedPressable
+                            onPressIn={() => {
+                                pressProgress.value = withTiming(1, { duration: 150 });
+                            }}
+                            onPressOut={() => {
+                                pressProgress.value = withTiming(0, { duration: 150 });
+                            }}
+                            onPress={() => router.replace("/(auth)")}
+                            style={[styles.backButton, animatedBackground]}
                         >
-                            {loading ? "Signing in..." : "Sign In"}
-                        </Button>
+                            <ArrowLeft size={20} color={styles.iconColor.color} />
+                        </AnimatedPressable>
                     </View>
-                </View>
 
-                {/* Bottom Redirection Block */}
-                <View style={styles.footer}>
-                    <InterText style={styles.footerText}>
-                        Don't have an account?{" "}
-                        <InterText
-                            style={styles.signUpLink}
-                            onPress={() => router.replace("/(auth)/register")}
-                        >
-                            Sign Up
+                    <View style={styles.titleContainer}>
+                        <InterText style={styles.title}>Welcome back</InterText>
+                        <InterText style={styles.subtitle}>
+                            Sign in to manage your smart lock
                         </InterText>
-                    </InterText>
-                </View>
-            </ScrollView>
+                    </View>
+
+                    <View style={styles.form}>
+                        {/* Email Field */}
+                        <Input
+                            label="Email"
+                            value={email}
+                            onChangeText={setEmail}
+                            placeholder="your@email.com"
+                            keyboardType="email-address"
+                        />
+
+                        {/* Password Field */}
+                        <Input
+                            label="Password"
+                            value={password}
+                            onChangeText={setPassword}
+                            placeholder="••••••••"
+                            isPassword
+                        />
+
+                        {/* Forgot Password Button */}
+                        <TouchableOpacity
+                            onPress={() => router.push("/(auth)/forgot-password")}
+                            style={styles.forgotPasswordButton}
+                        >
+                            <InterText style={styles.forgotPasswordText}>
+                                Forgot password?
+                            </InterText>
+                        </TouchableOpacity>
+
+                        {/* Action Block */}
+                        <View style={styles.actionBlock}>
+                            <Button
+                                size="lg"
+                                disabled={loading || !email || !password}
+                                onPress={handleSubmit}
+                            >
+                                {loading ? "Signing in..." : "Sign In"}
+                            </Button>
+                        </View>
+                    </View>
+
+                    {/* Bottom Redirection Block */}
+                    <View style={styles.footer}>
+                        <InterText style={styles.footerText}>
+                            Don't have an account?{" "}
+                            <InterText
+                                style={styles.signUpLink}
+                                onPress={() => router.replace("/(auth)/register")}
+                            >
+                                Sign Up
+                            </InterText>
+                        </InterText>
+                    </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
         </View>
     );
 }
