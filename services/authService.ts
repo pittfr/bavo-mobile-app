@@ -125,4 +125,13 @@ export const authService = {
             },
             "Could not reset password.",
         ),
+
+    logout: async (token: string): Promise<SuccessResponse> =>
+        fetchSuccess(
+            "/logout",
+            {
+                token: token,
+            },
+            "Could not log out.",
+        ),
 };

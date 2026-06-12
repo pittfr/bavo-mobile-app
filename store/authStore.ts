@@ -26,7 +26,7 @@ interface AuthState {
     logout: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>((set) => {
+export const useAuthStore = create<AuthState>((set, get) => {
     const handleTokenFlow = async (
         apiPromise: Promise<{ token?: string; errorMessage?: string }>,
         defaultError: string,
@@ -103,10 +103,20 @@ export const useAuthStore = create<AuthState>((set) => {
 
         logout: async () => {
             try {
-                await SecureStore.deleteItemAsync("userToken");
-                set({ userToken: null, isAuthenticated: false });
-            } catch (e) {
-                console.error("Error deleting token", e);
+                const currentToken = get().userToken;
+
+                if (currentToken) {
+                    await authService.logout(currentToken);
+                }
+            } catch (error) {
+                console.error("Failed to log out on the server:", error);
+            } finally {
+                try {
+                    await SecureStore.deleteItemAsync("userToken");
+                    set({ userToken: null, isAuthenticated: false });
+                } catch (error) {
+                    console.error("Error deleting token", error);
+                }
             }
         },
     };
