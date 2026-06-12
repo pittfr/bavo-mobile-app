@@ -5,7 +5,7 @@ interface LoginResponse {
     errorMessage?: string;
 }
 
-interface RegisterReponse {
+interface RegisterResponse {
     success: boolean;
     errorMessage?: string;
 }
@@ -54,7 +54,7 @@ export const authService = {
         last_name: string,
         email: string,
         password: string,
-    ): Promise<RegisterReponse> => {
+    ): Promise<RegisterResponse> => {
         try {
             const response = await fetch(`${OUTSYSTEMS_BASE_AUTH_URL}/register`, {
                 method: "POST",
@@ -62,8 +62,8 @@ export const authService = {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    first_name: first_name,
-                    last_name: last_name,
+                    firstName: first_name,
+                    lastName: last_name,
                     email: email,
                     password: password,
                 }),
@@ -120,9 +120,9 @@ export const authService = {
         }
     },
 
-    verifyCode: async (email: string, code: string): Promise<VerifyResponse> => {
+    verifyUser: async (email: string, code: string): Promise<VerifyResponse> => {
         try {
-            const response = await fetch(`${OUTSYSTEMS_BASE_AUTH_URL}/verify-code`, {
+            const response = await fetch(`${OUTSYSTEMS_BASE_AUTH_URL}/verify-user`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -141,7 +141,7 @@ export const authService = {
 
             return { token: data.token };
         } catch (error) {
-            console.error("Network Error while verifying code:", error);
+            console.error("Network Error while verifying user:", error);
             return {
                 errorMessage: "Check your internet connection.",
             };

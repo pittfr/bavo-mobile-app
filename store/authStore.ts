@@ -15,7 +15,7 @@ interface AuthState {
         password: string,
     ) => Promise<{ success: boolean; error?: string }>;
     resendVerificationCode: (email: string) => Promise<{ success: boolean; error?: string }>;
-    verifyCode: (email: string, code: string) => Promise<{ success: boolean; error?: string }>;
+    verifyUser: (email: string, code: string) => Promise<{ success: boolean; error?: string }>;
     logout: () => Promise<void>;
 }
 
@@ -74,9 +74,9 @@ export const useAuthStore = create<AuthState>((set) => ({
         }
     },
 
-    verifyCode: async (email, code) => {
+    verifyUser: async (email, code) => {
         try {
-            const result = await authService.verifyCode(email, code);
+            const result = await authService.verifyUser(email, code);
 
             if (result.token) {
                 await SecureStore.setItemAsync("userToken", result.token);
@@ -84,7 +84,7 @@ export const useAuthStore = create<AuthState>((set) => ({
                 set({ userToken: result.token, isAuthenticated: true });
                 return { success: true };
             } else {
-                return { success: false, error: result.errorMessage || "Code verification failed" };
+                return { success: false, error: result.errorMessage || "User verification failed" };
             }
         } catch (error) {
             return { success: false, error: "Server error" };

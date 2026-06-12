@@ -11,7 +11,7 @@ const CODE_LENGTH = 6;
 
 export default function VerifyAccount() {
     const router = useRouter();
-    const { verifyCode, resendVerificationCode } = useAuthStore();
+    const { verifyUser, resendVerificationCode } = useAuthStore();
 
     const { email } = useLocalSearchParams<{ email: string }>();
 
@@ -50,7 +50,7 @@ export default function VerifyAccount() {
 
         setLoading(true);
         try {
-            const result = await verifyCode(email, submitCode);
+            const result = await verifyUser(email, submitCode);
 
             if (!result?.success) {
                 Alert.alert("Invalid code", result.error || "The code you entered is incorrect.");
