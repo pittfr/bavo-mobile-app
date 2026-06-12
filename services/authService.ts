@@ -1,27 +1,17 @@
 const OUTSYSTEMS_BASE_AUTH_URL = process.env.EXPO_PUBLIC_OUTSYSTEMS_AUTH_URL;
 
-interface LoginResponse {
+interface TokenResponse {
     token?: string;
-    errorMessage?: string;
+    error_message?: string;
 }
 
-interface RegisterReponse {
+interface SuccessResponse {
     success: boolean;
-    errorMessage?: string;
-}
-
-interface VerifyResponse {
-    token?: string;
-    errorMessage?: string;
-}
-
-interface ResendResponse {
-    success?: boolean;
-    errorMessage?: string;
+    error_message?: string;
 }
 
 export const authService = {
-    login: async (email: string, password: string): Promise<LoginResponse> => {
+    login: async (email: string, password: string): Promise<TokenResponse> => {
         try {
             const response = await fetch(`${OUTSYSTEMS_BASE_AUTH_URL}/login`, {
                 method: "POST",
@@ -37,14 +27,14 @@ export const authService = {
             const data = await response.json();
 
             if (!response.ok) {
-                return { errorMessage: data.errorMessage || "Invalid username or password." };
+                return { error_message: data.error_message || "Invalid username or password." };
             }
 
             return { token: data.token };
         } catch (error) {
             console.error("Network Error during login:", error);
             return {
-                errorMessage: "Check your internet connection.",
+                error_message: "Check your internet connection.",
             };
         }
     },
@@ -54,7 +44,7 @@ export const authService = {
         last_name: string,
         email: string,
         password: string,
-    ): Promise<RegisterReponse> => {
+    ): Promise<SuccessResponse> => {
         try {
             const response = await fetch(`${OUTSYSTEMS_BASE_AUTH_URL}/register`, {
                 method: "POST",
@@ -74,7 +64,7 @@ export const authService = {
             if (!response.ok || data.success === false) {
                 return {
                     success: false,
-                    errorMessage: data.errorMessage || "Could not create account.",
+                    error_message: data.error_message || "Could not create account.",
                 };
             }
 
@@ -83,12 +73,12 @@ export const authService = {
             console.error("Network Error during registration:", error);
             return {
                 success: false,
-                errorMessage: "Check your internet connection.",
+                error_message: "Check your internet connection.",
             };
         }
     },
 
-    resendVerificationCode: async (email: string): Promise<ResendResponse> => {
+    resendVerificationCode: async (email: string): Promise<SuccessResponse> => {
         try {
             const response = await fetch(`${OUTSYSTEMS_BASE_AUTH_URL}/resend-verification-code`, {
                 method: "POST",
@@ -105,7 +95,7 @@ export const authService = {
             if (!response.ok || data.success === false) {
                 return {
                     success: false,
-                    errorMessage: data.errorMessage || "Could not resend code.",
+                    error_message: data.error_message || "Could not resend code.",
                 };
             }
 
@@ -115,14 +105,14 @@ export const authService = {
 
             return {
                 success: false,
-                errorMessage: "Check your internet connection.",
+                error_message: "Check your internet connection.",
             };
         }
     },
 
-    verifyCode: async (email: string, code: string): Promise<VerifyResponse> => {
+    verifyUser: async (email: string, code: string): Promise<TokenResponse> => {
         try {
-            const response = await fetch(`${OUTSYSTEMS_BASE_AUTH_URL}/verify-code`, {
+            const response = await fetch(`${OUTSYSTEMS_BASE_AUTH_URL}/verify-user`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -136,14 +126,14 @@ export const authService = {
             const data = await response.json();
 
             if (!response.ok) {
-                return { errorMessage: data.errorMessage || "Invalid or expired code." };
+                return { error_message: data.error_message || "Invalid or expired code." };
             }
 
             return { token: data.token };
         } catch (error) {
-            console.error("Network Error while verifying code:", error);
+            console.error("Network Error while verifying user:", error);
             return {
-                errorMessage: "Check your internet connection.",
+                error_message: "Check your internet connection.",
             };
         }
     },

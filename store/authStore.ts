@@ -2,101 +2,101 @@ import * as SecureStore from "expo-secure-store";
 import { create } from "zustand";
 import { authService } from "../services/authService";
 
+interface SuccessResponse {
+    success: boolean;
+    error?: string;
+}
+
 interface AuthState {
     isAuthenticated: boolean;
     userToken: string | null;
     isLoading: boolean;
     checkLoginStatus: () => Promise<void>;
-    login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+    login: (email: string, password: string) => Promise<SuccessResponse>;
     register: (
         firstName: string,
         lastName: string,
         email: string,
         password: string,
-    ) => Promise<{ success: boolean; error?: string }>;
-    resendVerificationCode: (email: string) => Promise<{ success: boolean; error?: string }>;
-    verifyCode: (email: string, code: string) => Promise<{ success: boolean; error?: string }>;
+    ) => Promise<SuccessResponse>;
+    resendVerificationCode: (email: string) => Promise<SuccessResponse>;
+    verifyUser: (email: string, code: string) => Promise<SuccessResponse>;
     logout: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-    isAuthenticated: false,
-    userToken: null,
-    isLoading: true,
-
-    checkLoginStatus: async () => {
+export const useAuthStore = create<AuthState>((set) => {
+    const handleTokenFlow = async (
+        apiPromise: Promise<{ token?: string; errorMessage?: string }>,
+        defaultError: string,
+    ): Promise<SuccessResponse> => {
         try {
-            const token = await SecureStore.getItemAsync("userToken");
-            if (token) {
-                set({ userToken: token, isAuthenticated: true });
-            }
-        } catch (e) {
-            console.error("Error reading token", e);
-        } finally {
-            set({ isLoading: false });
-        }
-    },
-
-    login: async (email, password) => {
-        try {
-            const result = await authService.login(email, password);
-
+            const result = await apiPromise;
             if (result.token) {
                 await SecureStore.setItemAsync("userToken", result.token);
-
                 set({ userToken: result.token, isAuthenticated: true });
                 return { success: true };
-            } else {
-                return { success: false, error: result.errorMessage || "Login failed" };
             }
+            return { success: false, error: result.errorMessage || defaultError };
         } catch (error) {
             return { success: false, error: "Server error" };
         }
-    },
+    };
 
-    register: async (firstName, lastName, email, password) => {
-        const result = await authService.register(firstName, lastName, email, password);
-
-        if (result.success) {
-            return { success: true };
-        } else {
-            return { success: false, error: result.errorMessage || "Registration failed" };
-        }
-    },
-
-    resendVerificationCode: async (email) => {
-        const result = await authService.resendVerificationCode(email);
-
-        if (result.success) {
-            return { success: true };
-        } else {
-            return { success: false, error: result.errorMessage || "Failed to resend code" };
-        }
-    },
-
-    verifyCode: async (email, code) => {
+    const handleSuccessFlow = async (
+        apiPromise: Promise<{ success?: boolean; errorMessage?: string }>,
+        defaultError: string,
+    ): Promise<SuccessResponse> => {
         try {
-            const result = await authService.verifyCode(email, code);
-
-            if (result.token) {
-                await SecureStore.setItemAsync("userToken", result.token);
-
-                set({ userToken: result.token, isAuthenticated: true });
+            const result = await apiPromise;
+            if (result.success) {
                 return { success: true };
-            } else {
-                return { success: false, error: result.errorMessage || "Code verification failed" };
             }
+            return { success: false, error: result.errorMessage || defaultError };
         } catch (error) {
             return { success: false, error: "Server error" };
         }
-    },
+    };
 
-    logout: async () => {
-        try {
-            await SecureStore.deleteItemAsync("userToken");
-            set({ userToken: null, isAuthenticated: false });
-        } catch (e) {
-            console.error("Error deleting token", e);
-        }
-    },
-}));
+    return {
+        isAuthenticated: false,
+        userToken: null,
+        isLoading: true,
+
+        checkLoginStatus: async () => {
+            try {
+                const token = await SecureStore.getItemAsync("userToken");
+                if (token) {
+                    set({ userToken: token, isAuthenticated: true });
+                }
+            } catch (e) {
+                console.error("Error reading token", e);
+            } finally {
+                set({ isLoading: false });
+            }
+        },
+
+        login: async (email, password) =>
+            handleTokenFlow(authService.login(email, password), "Login failed"),
+
+        register: async (firstName, lastName, email, password) =>
+            handleSuccessFlow(
+                authService.register(firstName, lastName, email, password),
+                "Registration failed",
+            ),
+
+        resendVerificationCode: async (email) =>
+            handleSuccessFlow(authService.resendVerificationCode(email), "Failed to resend code"),
+
+        verifyUser: async (email, code) =>
+            handleTokenFlow(authService.verifyUser(email, code), "User verification failed"),
+
+        logout: async () => {
+            try {
+                await SecureStore.deleteItemAsync("userToken");
+                set({ userToken: null, isAuthenticated: false });
+            } catch (e) {
+                console.error("Error deleting token", e);
+            }
+        },
+    };
+});
