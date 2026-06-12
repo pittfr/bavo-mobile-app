@@ -1,18 +1,14 @@
+import InterText from "@/components/inter-text";
 import { useAuthStore } from "@/store/authStore";
-import { useRouter } from "expo-router";
-import { Text, TouchableOpacity, View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 import { StyleSheet } from "react-native-unistyles";
-import "../unistyles";
+import "../../unistyles";
 
 export default function Index() {
-    const router = useRouter();
-
     const { logout } = useAuthStore();
 
     const handleLogout = async () => {
         await logout();
-
-        router.replace("/");
     };
 
     return (
@@ -23,9 +19,9 @@ export default function Index() {
                 alignItems: "center",
             }}
         >
-            <Text>Edit app/index.tsx to edit this screen.</Text>
+            <InterText>Edit app/index.tsx to edit this screen.</InterText>
             <TouchableOpacity onPress={handleLogout}>
-                <Text style={styles.logOutText}>Log Out</Text>
+                <InterText style={styles.logOutText}>Log Out</InterText>
             </TouchableOpacity>
         </View>
     );
