@@ -21,6 +21,8 @@ interface AuthState {
     ) => Promise<SuccessResponse>;
     resendVerificationCode: (email: string) => Promise<SuccessResponse>;
     verifyUser: (email: string, code: string) => Promise<SuccessResponse>;
+    forgotPassword: (email: string) => Promise<SuccessResponse>;
+    resetPassword: (email: string, code: string, new_password: string) => Promise<SuccessResponse>;
     logout: () => Promise<void>;
 }
 
@@ -89,6 +91,15 @@ export const useAuthStore = create<AuthState>((set) => {
 
         verifyUser: async (email, code) =>
             handleTokenFlow(authService.verifyUser(email, code), "User verification failed"),
+
+        forgotPassword: (email) =>
+            handleSuccessFlow(authService.forgotPassword(email), "Failed to send code"),
+
+        resetPassword: (email, code, new_password) =>
+            handleTokenFlow(
+                authService.resetPassword(email, code, new_password),
+                "Password reset failed",
+            ),
 
         logout: async () => {
             try {

@@ -137,4 +137,69 @@ export const authService = {
             };
         }
     },
+
+    forgotPassword: async (email: string): Promise<SuccessResponse> => {
+        try {
+            const response = await fetch(`${OUTSYSTEMS_BASE_AUTH_URL}/forgot-password`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email: email,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || data.success === false) {
+                return {
+                    success: false,
+                    error_message: data.error_message || "Could not send code.",
+                };
+            }
+
+            return { success: true };
+        } catch (error) {
+            console.error("Network Error while trying to send code:", error);
+
+            return {
+                success: false,
+                error_message: "Check your internet connection.",
+            };
+        }
+    },
+
+    resetPassword: async (
+        email: string,
+        code: string,
+        new_password: string,
+    ): Promise<TokenResponse> => {
+        try {
+            const response = await fetch(`${OUTSYSTEMS_BASE_AUTH_URL}/reset-password`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email: email,
+                    code: code,
+                    new_password: new_password,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                return { error_message: data.error_message || "Could not reset password." };
+            }
+
+            return { token: data.token };
+        } catch (error) {
+            console.error("Network Error while resetting password:", error);
+            return {
+                error_message: "Check your internet connection.",
+            };
+        }
+    },
 };
