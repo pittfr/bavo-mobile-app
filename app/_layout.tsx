@@ -7,7 +7,7 @@ import {
     Inter_900Black,
     useFonts,
 } from "@expo-google-fonts/inter";
-import { Stack, useRouter, useSegments } from "expo-router";
+import { Stack } from "expo-router";
 import { useEffect } from "react";
 import { useAuthStore } from "../store/authStore";
 import "../unistyles";
@@ -22,26 +22,21 @@ export default function RootLayout() {
         Inter_900Black,
     });
     const { isAuthenticated, isLoading, checkLoginStatus } = useAuthStore();
-    const segments = useSegments();
-    const router = useRouter();
 
     useEffect(() => {
         checkLoginStatus();
     }, []);
 
-    useEffect(() => {
-        if (isLoading) return;
-
-        const inAuthGroup = segments[0] === "(auth)";
-
-        if (isAuthenticated && inAuthGroup) {
-            router.replace("/");
-        } else if (!isAuthenticated && !inAuthGroup) {
-            router.replace("/(auth)");
-        }
-    }, [isAuthenticated, isLoading, segments]);
-
     if (isLoading || !fontsLoaded) return null;
 
-    return <Stack screenOptions={{ headerShown: false, animation: "fade_from_bottom" }} />;
+    return (
+        <Stack screenOptions={{ headerShown: false, animation: "fade" }}>
+            <Stack.Protected guard={isAuthenticated}>
+                <Stack.Screen name="(tabs)" />
+            </Stack.Protected>
+            <Stack.Protected guard={!isAuthenticated}>
+                <Stack.Screen name="(auth)" />
+            </Stack.Protected>
+        </Stack>
+    );
 }
