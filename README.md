@@ -44,3 +44,47 @@ bavo-mobile-app/
 ├── store/                # Zustand global state stores (authStore.ts)
 ├── unistyles.ts          # Global theme and styling configuration
 └── app.json              # Expo application configuration
+```
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js (v18 or higher recommended)
+- npm, yarn, or pnpm
+- [Expo CLI](https://docs.expo.dev/get-started/installation/)
+- **Expo Go** app installed on your physical device, or an iOS Simulator / Android Emulator setup.
+
+### Installation
+1. **Clone the repository**
+
+   ```bash
+   git clone [https://github.com/your-username/bavo-mobile-app.git](https://github.com/your-username/bavo-mobile-app.git)
+   cd bavo-mobile-app```
+
+2. **Install dependencies**
+
+   ```bash
+   npm install
+   ```
+### Running the App
+Start the Expo development server:
+
+```bash
+npx expo start
+```
+
+- Press `a` to open in **Android Emulator**.
+- Press `i` to open in **iOS Simulator**.
+- Scan the generated QR code with your mobile device using the **Expo Go** app to run it physically.
+
+## 🎨 Theming & Styling
+This project leverages **React Native Unistyles** for cross-platform, high-performance styling. The configuration (`unistyles.ts`) includes:
+- **Light & Dark Modes** with a comprehensive semantic color palette (`primary`, `neutral`, `success`, `error`, etc.).
+- **Shared Typography Tokens** utilizing the Inter font family with strict size and weight mappings.
+- **Adaptive UI Dimensions** for consistent layouts and spacing across different devices.
+
+## 🔐 Authentication Flow
+The app implements an end-to-end authentication guard mapped out in `store/authStore.ts` and `services/authService.ts`. Unauthenticated users are strictly routed to the `(auth)` group. Upon successful login/verification, the session token is saved securely via `expo-secure-store`, and the router seamlessly redirects the user to the protected `(tabs)` application flow.
+
+## 📄 License
+This project is licensed under the MIT License.
