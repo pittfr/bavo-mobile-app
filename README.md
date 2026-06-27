@@ -1,50 +1,46 @@
-# Welcome to your Expo app 👋
+<div align="center">
+  <img src="./assets/images/BaVo-logo.png" alt="BaVo Logo" width="120" />
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+  # BaVo Mobile App
 
-## Get started
+  *Smart access, simplified.*
 
-1. Install dependencies
+  [![Expo](https://img.shields.io/badge/Expo-1C1E24?style=for-the-badge&logo=expo&logoColor=white)](https://expo.dev/)
+  [![React Native](https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactnative.dev/)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+  [![Zustand](https://img.shields.io/badge/Zustand-443E38?style=for-the-badge&logo=react&logoColor=white)](https://zustand-demo.pmnd.rs/)
+</div>
 
-   ```bash
-   npm install
-   ```
+## 📖 Overview
+BaVo is a modern, cross-platform mobile application built with **React Native** and **Expo** to manage smart locks. It provides users with a seamless, intuitive, and secure experience for access control. The application features a robust authentication flow, highly secure local token storage, and dynamic custom theming.
 
-2. Start the app
+## ✨ Features
+- **Comprehensive Authentication Flow:** Login, Registration, 6-digit OTP Verification, and Password Reset steps.
+- **Secure Storage:** Session tokens are securely encrypted and stored locally using `expo-secure-store`.
+- **State Management:** Fast, scalable, and centralized state management powered by `Zustand`.
+- **Custom Theming:** Responsive styling and automatic Dark/Light mode support using `react-native-unistyles`.
+- **File-based Routing:** Clean, strictly typed, and intuitive navigation using `expo-router`.
+- **OutSystems Integration:** Pre-configured API service layer pointing to an OutSystems backend.
 
-   ```bash
-   npx expo start
-   ```
+## 🛠️ Tech Stack
+- **Framework:** [React Native](https://reactnative.dev/) & [Expo](https://expo.dev/)
+- **Language:** [TypeScript](https://www.typescriptlang.org/)
+- **Navigation:** [Expo Router](https://docs.expo.dev/router/introduction/)
+- **State Management:** [Zustand](https://github.com/pmndrs/zustand)
+- **Styling:** [React Native Unistyles](https://reactnativeunistyles.vercel.app/)
+- **Typography:** [Inter Font](https://fonts.google.com/specimen/Inter)
+- **Icons:** [Lucide React Native](https://lucide.dev/icons/)
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## 📂 Project Structure
+```text
+bavo-mobile-app/
+├── app/                  # Expo Router file-based navigation
+│   ├── (auth)/           # Authentication screens (Login, Register, OTP, Reset)
+│   ├── (tabs)/           # Authenticated main app tabs
+│   └── _layout.tsx       # Root layout & auth guard
+├── assets/               # Static assets (images, icons, splash screens)
+├── components/           # Reusable UI components (Buttons, Inputs, Layouts)
+├── services/             # API configuration and network requests (authService.ts)
+├── store/                # Zustand global state stores (authStore.ts)
+├── unistyles.ts          # Global theme and styling configuration
+└── app.json              # Expo application configuration
